@@ -1,6 +1,3 @@
-from rdflib import Graph, Literal, RDF, URIRef, BNode
-# rdflib knows about quite a few popular namespaces, like W3C ontologies, schema.org etc.
-from rdflib.namespace import FOAF , XSD, DCAT
 from catalog.crawlers import (
     FSGeodata
 )
@@ -8,37 +5,12 @@ from catalog.crawlers import (
 fsgeodata = FSGeodata()
 
 def main():
-    # fsgeodata.get_metadata_urls()
-    # fsgeodata.download_metadata()
-    fsgeodata.parse_metadata()
-
-    fsgeodata_assets = fsgeodata.assets
-
-    # Create a Graph
-    g = Graph()
-    g.bind("dcat", DCAT)
-    bnode = BNode()  # Create a blank node for the FSGeodata resource
-
-    # Add triples using store's add method.
-    g.add((bnode, DCAT.Catalog, DCAT.CatalogRecord))
-    #g.add((bnode, FOAF.nick, Literal("", lang="foo")))
-    #g.add((donna, FOAF.name, Literal("Donna Fales")))
-    # fsgeodata_rdf = URIRef(f"{fsgeodata.base_url}")
-
-    # # term.bind(XSD.string, complex)
-    # g.add((fsgeodata_rdf, DCAT, DCAT.Document))
+    fsgeodata.get_metadata_urls()
+    fsgeodata.download_metadata()
+    # fsgeodata.parse_metadata()
+    # fsgeodata_assets = fsgeodata.assets
     # for asset in fsgeodata_assets:
-    #     pass
-    #     # Create an RDF URI node to use as the subject for multiple triples
-    #     # g.add((fsgeodata_rdf, FOAF.title, Literal(f"{asset['title']}", datatype=XSD.string)))
-    #     # g.add((fsgeodata_rdf, FOAF.description, Literal(f"{asset['description']}", datatype=XSD.string)))
-
-    # # for s, p, o in g:
-    #     print((s, p, o))
-    # for stmt in g:
-    #    print(stmt)
-    v = g.serialize(format="xml")
-    print(v)
+    #     print(asset)
 
 if __name__ == "__main__":
     main()

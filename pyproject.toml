@@ -15,7 +15,6 @@ dependencies = [
     "bs4>=0.0.2",
     "lxml>=5.3.1",
     "python-dotenv[cli]>=1.0.1",
-    "rdflib>=7.1.4",
     "requests>=2.32.3",
 ]
 

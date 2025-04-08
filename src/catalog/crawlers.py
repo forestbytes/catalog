@@ -87,7 +87,9 @@ class FSGeodata:
             url = f"{self.metadata_base_url}{url}"
             resp = requests.get(url)
             with open(filename, "wb") as f:
-                f.write(resp.content)
+                soup = BeautifulSoup(resp.content, features="xml")
+                f.write(soup.prettify("utf-8", indent_level=4))
+                # f.write(resp.content)
 
 
     def parse_metadata(self):
@@ -198,17 +200,3 @@ def climate_risk_viewer():
                 assets.append(asset)
 
     return assets
-
-
-def main():
-    import pprint
-
-    assets = data_dot_gov()
-    assets.extend(fsgeodata())
-    assets.extend(climate_risk_viewer())
-
-    pprint.pprint(assets)
-
-
-if __name__ == "__main__":
-    main()
