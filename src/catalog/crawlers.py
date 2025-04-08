@@ -3,11 +3,20 @@ from bs4 import BeautifulSoup
 import re
 import arrow
 from dotenv import load_dotenv
+import os
+import glob
+
+load_dotenv()
 
 
 def remove_html(text):
     txt = re.sub("<[^<]+?>", "", text).replace("\n", "")
     return txt
+
+
+def strip_html(text):
+    soup = BeautifulSoup(text, features="lxml")
+    return soup.get_text()
 
 
 def data_dot_gov():
@@ -48,6 +57,69 @@ def data_dot_gov():
         assets.append(asset)
 
     return assets
+
+
+class FSGeodata:
+
+    def __init__(self):
+        self.base_url = "https://data.fs.usda.gov/geodata/edw/datasets.php"
+        self.metadata_base_url = "https://data.fs.usda.gov/geodata/edw/"
+        self.metadata_urls = []
+        self.assets = []
+
+    def get_metadata_urls(self):
+        resp = requests.get(self.base_url)
+        soup = BeautifulSoup(resp.content, "html.parser")
+
+        anchors = soup.find_all("a")
+        for anchor in anchors:
+            if anchor and anchor.get_text() == "metadata":
+                self.metadata_urls.append(anchor["href"])
+
+
+    def download_metadata(self):
+
+        for url in self.metadata_urls:
+            xml_file_name = url.split("/")[-1]
+            filename = f"./data/fsgeodata/{xml_file_name}"
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+            url = f"{self.metadata_base_url}{url}"
+            resp = requests.get(url)
+            with open(filename, "wb") as f:
+                f.write(resp.content)
+
+
+    def parse_metadata(self):
+
+        meta_data_file_list = glob.glob("./data/fsgeodata/*.xml")
+
+        for f in meta_data_file_list:
+            with open(f, "rb") as file:
+                resp = file.read()
+                soup = BeautifulSoup(resp, features="xml")
+
+                title = strip_html(soup.find("title").get_text())
+                desc_block = soup.find("descript")
+                abstract = remove_html(desc_block.find("abstract").get_text())
+                themekeys = soup.find_all("themekey")
+                keywords = [tk.get_text() for tk in themekeys]
+                idinfo_citation_citeinfo_pubdate = soup.find("pubdate")
+
+                if idinfo_citation_citeinfo_pubdate:
+                    modified = arrow.get(idinfo_citation_citeinfo_pubdate.get_text())
+                else:
+                    modified = ""
+
+                url = f"https://data.fs.usda.gov/geodata/edw/edw_resources/meta/{f.strip("./data/fsgeodata/")}"
+                asset = {
+                    "title": title,
+                    "description": abstract,
+                    "modified": modified,
+                    "metadata_url": url,
+                    "keywords": keywords,
+                }
+                self.assets.append(asset)
 
 
 def fsgeodata():
