@@ -168,3 +168,5 @@ data/
 *.whl
 *.tar.gz
 *.zip
+*scratch*
+test.out

@@ -14,9 +14,9 @@ def remove_html(text):
     return txt
 
 
-def strip_html(text):
-    soup = BeautifulSoup(text, features="lxml")
-    return soup.get_text()
+# def strip_html(text):
+#     soup = BeautifulSoup(text, features="lxml")
+#     return soup.get_text()
 
 
 def data_dot_gov():
