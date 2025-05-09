@@ -6,8 +6,7 @@ flowchart TB
       NRM
       PostgreSQL
       Other
-      subgraph MetadataSpreadsheetEntry[Metadatda Spreadsheet Entry]
-      end
+      MetadataSpreadsheetEntry[Metadatda Spreadsheet Entry]
   end
 
   NRM --> MetadataSpreadsheetEntry
@@ -22,7 +21,7 @@ flowchart TB
   subgraph EDW[Enterprise Data Wharehouse Ingest]
   end
 
-  MetadataSpreadsheetEntry --> Review
+  MetadataSpreadsheetEntry --> A
   A --> |Yes| EDW
   A --> |No| DataInputs
   
