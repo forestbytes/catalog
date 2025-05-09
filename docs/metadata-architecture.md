@@ -2,7 +2,7 @@
 
 flowchart TB
   subgraph DataInputs[Data Inputs]
-      direction LR
+      direction TB
       NRM --> MetadataSpreadsheetEntry[Metadata Spreadsheet Entry]
       PostgreSQL --> MetadataSpreadsheetEntry
       Other[
@@ -12,4 +12,9 @@ flowchart TB
       ] --> MetadataSpreadsheetEntry
       MetadataSpreadsheetEntry
   end
+
+  subgraph Review[Metadata Review Process]
+  end
+
+  MetadataSpreadsheetEntry --> Review
 ```
