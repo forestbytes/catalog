@@ -12,12 +12,4 @@ flowchart TB
       ] --> MetadataSpreadsheetEntry
       MetadataSpreadsheetEntry
   end
-
-  subgraph Review
-    Approval@{shape: diamond, label: "Approved?"}
-    Approval --> |Yes| EDW
-    Approval --> |No| DataInputs
-  end
-
-  MetadataSpreadsheetEntry --> Review
 ```
