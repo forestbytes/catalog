@@ -1,16 +1,15 @@
 ```mermaid
 
 flowchart TB
-  subgraph DataInputs[Data Inputs]
+  subgraph DataInputs
       direction LR
       NRM
       PostgreSQL
       Other
-      MetadataSpreadsheetEntry[Metadatda Spreadsheet Entry]
+      MetadataSpreadsheetEntry
   end
 
   NRM --> MetadataSpreadsheetEntry
   PostgreSQL --> MetadataSpreadsheetEntry
-  Other --> MetadataSpreadsheetEntry
-  
+  Other --> MetadataSpreadsheetEntry  
 ```
