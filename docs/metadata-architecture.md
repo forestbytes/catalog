@@ -12,17 +12,5 @@ flowchart TB
   NRM --> MetadataSpreadsheetEntry
   PostgreSQL --> MetadataSpreadsheetEntry
   Other --> MetadataSpreadsheetEntry
-
-  subgraph Review
-    direction TB
-    A@{ shape: diamond, label: "Approval?" }      
-  end
-
-  subgraph EDW[Enterprise Data Wharehouse Ingest]
-  end
-
-  MetadataSpreadsheetEntry --> A
-  A --> |Yes| EDW
-  A --> |No| DataInputs
   
 ```
