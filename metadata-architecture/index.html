@@ -129,13 +129,25 @@
 <h1>Metadata Architecture</h1>
 <div class="mermaid">
 flowchart TB
-  subgraph DataInputs
+  subgraph DataInputs[Data Inputs]
       direction LR
-      NRM --&gt; MetadataSpreadsheetEntry
+      NRM --&gt; MetadataSpreadsheetEntry[Metadata Spreadsheet Entry]
       PostgreSQL --&gt; MetadataSpreadsheetEntry
-      Other --&gt; MetadataSpreadsheetEntry
+      Other[
+        Other:
+        WebApp, 
+        Healthy Forest Restoration
+      ] --&gt; MetadataSpreadsheetEntry
       MetadataSpreadsheetEntry
   end
+
+  subgraph Review
+    Approval@{shape: diamond, label: "Approved?"}
+    Approval --&gt; |Yes| EDW
+    Approval --&gt; |No| DataInputs
+  end
+
+  MetadataSpreadsheetEntry --&gt; Review
 </div>
 </article>
 </div>
