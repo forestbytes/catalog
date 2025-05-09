@@ -1,22 +1,29 @@
 ```mermaid
-flowchart LR
-  subgraph MetadataArchitecture[Metadata Architecture]
-    direction TB
-    subgraph DataInputs[Data Inputs]
-        direction LR
-        NRM --> Review
-        PosgreSQL --> Review
-        Other --> Review
-    end
-    subgraph Review
-        direction TB
-        subgraph Step1
-          direction LR
-        end
-        Step1 --> Step2
-    end
-  end
-  A --> MetadataArchitecture --> B
-  DataInputs --> Review
 
+flowchart TB
+  subgraph DataInputs[Data Inputs]
+      direction LR
+      NRM
+      PostgreSQL
+      Other
+      subgraph MetadataSpreadsheetEntry[Metadatda Spreadsheet Entry]
+      end
+  end
+
+  NRM --> MetadataSpreadsheetEntry
+  PostgreSQL --> MetadataSpreadsheetEntry
+  Other --> MetadataSpreadsheetEntry
+
+  subgraph Review
+    direction TB
+    A@{ shape: diamond, label: "Approval?" }      
+  end
+
+  subgraph EDW[Enterprise Data Wharehouse Ingest]
+  end
+
+  MetadataSpreadsheetEntry --> Review
+  A --> |Yes| EDW
+  A --> |No| DataInputs
+  
 ```
