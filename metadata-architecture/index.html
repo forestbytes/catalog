@@ -142,12 +142,11 @@ flowchart TB
   end
 
   subgraph Review[Metadata Review Process]
-    ReviewDecision@{shape: diamond, label: "Approved?"}
+    ReviewDecision{Approved?}
   end
 
   ReviewDecision --&gt; |Yes| EDW
-  ReviewDecision --&gt; |No| DataInputs
-
+  ReviewDecision ----&gt; |No| DataInputs
   MetadataSpreadsheetEntry --&gt; Review
 </div>
 </article>
