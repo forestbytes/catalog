@@ -3,13 +3,9 @@
 flowchart TB
   subgraph DataInputs
       direction LR
-      NRM
-      PostgreSQL
-      Other
+      NRM --> MetadataSpreadsheetEntry
+      PostgreSQL --> MetadataSpreadsheetEntry
+      Other --> MetadataSpreadsheetEntry
       MetadataSpreadsheetEntry
   end
-
-  NRM --> MetadataSpreadsheetEntry
-  PostgreSQL --> MetadataSpreadsheetEntry
-  Other --> MetadataSpreadsheetEntry  
 ```
