@@ -131,15 +131,11 @@
 flowchart TB
   subgraph DataInputs
       direction LR
-      NRM
-      PostgreSQL
-      Other
+      NRM --&gt; MetadataSpreadsheetEntry
+      PostgreSQL --&gt; MetadataSpreadsheetEntry
+      Other --&gt; MetadataSpreadsheetEntry
       MetadataSpreadsheetEntry
   end
-
-  NRM --&gt; MetadataSpreadsheetEntry
-  PostgreSQL --&gt; MetadataSpreadsheetEntry
-  Other --&gt; MetadataSpreadsheetEntry  
 </div>
 </article>
 </div>
