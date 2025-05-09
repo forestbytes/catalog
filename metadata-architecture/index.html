@@ -129,18 +129,17 @@
 <h1>Metadata Architecture</h1>
 <div class="mermaid">
 flowchart TB
-  subgraph DataInputs[Data Inputs]
+  subgraph DataInputs
       direction LR
       NRM
       PostgreSQL
       Other
-      MetadataSpreadsheetEntry[Metadatda Spreadsheet Entry]
+      MetadataSpreadsheetEntry
   end
 
   NRM --&gt; MetadataSpreadsheetEntry
   PostgreSQL --&gt; MetadataSpreadsheetEntry
-  Other --&gt; MetadataSpreadsheetEntry
-
+  Other --&gt; MetadataSpreadsheetEntry  
 </div>
 </article>
 </div>
