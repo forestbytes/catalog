@@ -130,7 +130,7 @@
 <div class="mermaid">
 flowchart TB
   subgraph DataInputs[Data Inputs]
-      direction LR
+      direction TB
       NRM --&gt; MetadataSpreadsheetEntry[Metadata Spreadsheet Entry]
       PostgreSQL --&gt; MetadataSpreadsheetEntry
       Other[
@@ -140,6 +140,11 @@ flowchart TB
       ] --&gt; MetadataSpreadsheetEntry
       MetadataSpreadsheetEntry
   end
+
+  subgraph Review[Metadata Review Process]
+  end
+
+  MetadataSpreadsheetEntry --&gt; Review
 </div>
 </article>
 </div>
