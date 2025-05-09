@@ -1,11 +1,23 @@
 ```mermaid
 
 flowchart TB
-  subgraph DataInputs
+  subgraph DataInputs[Data Inputs]
       direction LR
-      NRM --> MetadataSpreadsheetEntry
+      NRM --> MetadataSpreadsheetEntry[Metadata Spreadsheet Entry]
       PostgreSQL --> MetadataSpreadsheetEntry
-      Other --> MetadataSpreadsheetEntry
+      Other[
+        Other:
+        WebApp, 
+        Healthy Forest Restoration
+      ] --> MetadataSpreadsheetEntry
       MetadataSpreadsheetEntry
   end
+
+  subgraph Review
+    Approval@{shape: diamond, label: "Approved?"}
+    Approval --> |Yes| EDW
+    Approval --> |No| DataInputs
+  end
+
+  MetadataSpreadsheetEntry --> Review
 ```
