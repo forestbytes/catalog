@@ -141,18 +141,6 @@ flowchart TB
   PostgreSQL --&gt; MetadataSpreadsheetEntry
   Other --&gt; MetadataSpreadsheetEntry
 
-  subgraph Review
-    direction TB
-    A@{ shape: diamond, label: "Approval?" }      
-  end
-
-  subgraph EDW[Enterprise Data Wharehouse Ingest]
-  end
-
-  MetadataSpreadsheetEntry --&gt; A
-  A --&gt; |Yes| EDW
-  A --&gt; |No| DataInputs
-
 </div>
 </article>
 </div>
