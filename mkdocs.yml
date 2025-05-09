@@ -1,1 +1,23 @@
 site_name: USFS Catalog
+
+nav:
+  - Home: index.md
+  - Metadata Architecture: metadata-architecture.md
+
+      # - Overview: metadata-architecture/overview.md
+      # - Data Model: metadata-architecture/data-model.md
+      # - Metadata Standards: metadata-architecture/metadata-standards.md
+  # - Getting Started:
+  #     - Overview: getting-started/overview.md
+  #     - Installation: getting-started/installation.md
+  #     - Configuration: getting-started/configuration.md
+  # - User Guide:
+  #     - Overview: user-guide/overview.md
+  #     - Data Sources: user-guide/data-sources.md
+  #     - Data Processing: user-guide/data-processing.md
+  # - API Reference:
+  #     - Overview: api-reference/overview.md
+  #     - Endpoints: api-reference/endpoints.md
+  # - Examples:
+  #     - Overview: examples/overview.md
+  #     - Use Cases: examples/use-cases.md
