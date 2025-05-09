@@ -11,13 +11,16 @@ flowchart TB
         Healthy Forest Restoration
       ] --> MetadataSpreadsheetEntry
       MetadataSpreadsheetEntry
+
+      subgraph Review[Metadata Review Process]
+        ReviewDecision{Approved?}
+      end
   end
 
-  subgraph Review[Metadata Review Process]
-    ReviewDecision{Approved?}
+  subgraph EDW[Enterpise Data Wharehouse]
   end
   
   ReviewDecision --> |Yes| EDW
-  ReviewDecision ----> |No| DataInputs
-  MetadataSpreadsheetEntry --> Review
+  ReviewDecision --> |No| MetadataSpreadsheetEntry
+  MetadataSpreadsheetEntry --> ReviewDecision
 ```
