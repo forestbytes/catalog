@@ -128,29 +128,33 @@
 <article class="md-content__inner md-typeset">
 <h1>Metadata Architecture</h1>
 <div class="mermaid">
-flowchart TB
-  subgraph DataInputs[Data Inputs]
-      direction TB
-      NRM --&gt; MetadataSpreadsheetEntry[Metadata Spreadsheet Entry]
-      PostgreSQL --&gt; MetadataSpreadsheetEntry
-      Other[
-        Other:
-        WebApp, 
-        Healthy Forest Restoration
-      ] --&gt; MetadataSpreadsheetEntry
-      MetadataSpreadsheetEntry
+flowchart
+  direction TB
 
-      subgraph Review[Metadata Review Process]
-        ReviewDecision{Approved?}
-      end
+  subgraph Sources
+    subgraph NRM
+    end
+
+    subgraph PostgreSQL
+    end
+
+    subgraph OtherSources
+    end
   end
 
-  subgraph EDW[Enterpise Data Wharehouse]
-  end
+NRM --&gt; ReviewDecision
+PostgreSQL --&gt; ReviewDecision
+OtherSources --&gt; ReviewDecision
 
-  ReviewDecision --&gt; |Yes| EDW
-  ReviewDecision --&gt; |No| MetadataSpreadsheetEntry
-  MetadataSpreadsheetEntry --&gt; ReviewDecision
+subgraph Review[Metadata Review Process]
+  ReviewDecision{Approved?}
+end
+
+subgraph EDW[Enterpise Data Wharehouse]
+end
+
+ReviewDecision --&gt; |Yes| EDW
+ReviewDecision --&gt; |No| Sources
 </div>
 </article>
 </div>
