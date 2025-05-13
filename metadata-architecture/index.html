@@ -128,37 +128,43 @@
 <article class="md-content__inner md-typeset">
 <h1>Metadata Architecture</h1>
 <div class="mermaid">
-flowchart TB
+graph TB
   subgraph Inputs[Data Inputs]
-      direction TB
-      NRM
-      PostgreSQL
-      Other[Other&lt;br&gt;WebApp, Healthy Forest Restoration]     
+    subgraph Sources
+      NRM["NRM&lt;br/&gt;Filtered&lt;br/&gt;Possibly transformed&lt;br/&gt;May or may not contain etadata&lt;br&gt;"
+      ]
+      PgSQL["PostgreSQL&lt;br/&gt;Data are appended together in horizontal fashion"]
+      Other["Other&lt;br/&gt;File geodatabases&lt;br/&gt;T-Drive Sources"]
+    end
   end
 
-  subgraph Review
-    direction TB
-    Spreadsheet --&gt; Application --&gt; PowerPoint
-  end
+  subgraph Review[Review]
+    direction LR
 
-  NRM --&gt; Spreadsheet
-  PostgreSQL --&gt; Spreadsheet
-  Other --&gt; Spreadsheet
-
-  subgraph EDW
-    direction TB
-    Approve{Approve?}
-    subgraph EDWIngest[EDW Ingest]
-      FME
-      edw[(EDW)]
+    subgraph Steps
+      direction LR
+      S[Spreadsheet]
+      A[Applciation]
+      P[PowerPoint]
+      Approve{Approve?}
+      D[&lt;ol&gt;&lt;li&gt;Requestor completes standard metadata spreadsheet&lt;/li&gt;&lt;li&gt;Requestor completes application for CGB committee to review&lt;/li&gt;&lt;li&gt;Requestor completes Powerpoint used in presentation to CGB committee&lt;/li&gt;&lt;/ol&gt;]
     end
 
-    FME --&gt; edw
+    S --&gt; A
+    A --&gt; P
+    P --&gt; Approve
   end
+  style Steps stroke:#f66,stroke-width:3px,color:#fff,stroke-dasharray: 5 5
 
-  PowerPoint --&gt; Approve
-  Approve --&gt; |Yes| FME
+  subgraph EDW
+    FME[ARC FME ETL Transformation of Data&lt;br/&gt;Automatic and &lt;br/&gt;Manual Process]
+    FME --&gt; EDWDatabase[(EDW Database)]
+  end
+  Approve --&gt; |Yes| EDW
   Approve --&gt; |No| Inputs
+
+  Inputs --&gt; Review
+
 </div>
 </article>
 </div>
