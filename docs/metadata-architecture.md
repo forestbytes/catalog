@@ -1,6 +1,6 @@
 ```mermaid
 
-flowchart
+flowchart TB
   subgraph Inputs[Data Inputs]
       direction TB
       NRM
@@ -9,7 +9,7 @@ flowchart
   end
 
   subgraph Review
-    direction LR
+    direction TB
     Spreadsheet --> Application --> PowerPoint
   end
 
@@ -18,6 +18,7 @@ flowchart
   Other --> Spreadsheet
 
   subgraph EDW
+    direction TB
     Approve{Approve?}
     EDWIngest
   end
