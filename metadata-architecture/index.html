@@ -148,11 +148,16 @@ flowchart TB
   subgraph EDW
     direction TB
     Approve{Approve?}
-    EDWIngest
+    subgraph EDWIngest[EDW Ingest]
+      FME
+      edw[(EDW)]
+    end
+
+    FME --&gt; edw
   end
 
   PowerPoint --&gt; Approve
-  Approve --&gt; |Yes| EDWIngest
+  Approve --&gt; |Yes| FME
   Approve --&gt; |No| Inputs
 </div>
 </article>
