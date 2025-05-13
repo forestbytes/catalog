@@ -1,26 +1,30 @@
 ```mermaid
 
-flowchart TB
-  subgraph DataInputs[Data Inputs]
-      direction TB
-      NRM --> MetadataSpreadsheetEntry[Metadata Spreadsheet Entry]
-      PostgreSQL --> MetadataSpreadsheetEntry
-      Other[
-        Other:
-        WebApp, 
-        Healthy Forest Restoration
-      ] --> MetadataSpreadsheetEntry
-      MetadataSpreadsheetEntry
+flowchart
+  direction TB
 
-      subgraph Review[Metadata Review Process]
-        ReviewDecision{Approved?}
-      end
+  subgraph Sources
+    subgraph NRM
+    end
+    
+    subgraph PostgreSQL
+    end
+
+    subgraph OtherSources
+    end
   end
 
-  subgraph EDW[Enterpise Data Wharehouse]
-  end
+NRM --> ReviewDecision
+PostgreSQL --> ReviewDecision
+OtherSources --> ReviewDecision
+
+subgraph Review[Metadata Review Process]
+  ReviewDecision{Approved?}
+end
+
+subgraph EDW[Enterpise Data Wharehouse]
+end
   
-  ReviewDecision --> |Yes| EDW
-  ReviewDecision --> |No| MetadataSpreadsheetEntry
-  MetadataSpreadsheetEntry --> ReviewDecision
+ReviewDecision --> |Yes| EDW
+ReviewDecision --> |No| Sources
 ```
