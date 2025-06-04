@@ -21,3 +21,8 @@ dev = [
     "pytest>=8.3.5",
     "pytest-sugar>=1.0.0",
 ]
+
+[tool.uv.workspace]
+members = [
+    "slclient",
+]
