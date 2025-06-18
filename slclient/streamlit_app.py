@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("🌲 USFS Catalog")
+st.title("🌲 USFS Data Catalog")
 st.write("Ask me anything about the US Forest Service data! ")
 
 quesiton = None
