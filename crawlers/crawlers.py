@@ -4,6 +4,7 @@ import re
 import arrow
 from dotenv import load_dotenv
 import os
+import uuid
 
 
 def strip_html_tags(text):
@@ -68,8 +69,10 @@ def fsgeodata():
             else:
                 modified = ""
 
+            # Generate a UUID4 (random UUID)
+            unique_id = uuid.uuid4()
             asset = {
-                "id": url,
+                "id": unique_id,
                 "title": title,
                 "description": abstract,
                 "modified": modified,
