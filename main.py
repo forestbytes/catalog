@@ -90,29 +90,29 @@ def main():
     collection = chroma_client.get_or_create_collection(name=collection_name)
     
     assets = fsgeodata()
-    count = 0
-    for asset in assets:
-        if "fire" in asset["description"].lower():
-            count += 1
-    print(f"Found {count} assets related to fire.")
+    # count = 0
+    # for asset in assets:
+    #     if "fire" in asset["description"].lower():
+    #         count += 1
+    # print(f"Found {count} assets related to fire.")
 
-    # empty_collection(collection)
-    # populate_collection(collection)
+    empty_collection(collection)
+    populate_collection(collection)
     
-    results = query_collection(
-        collection,
-        query_texts=["Which data set in the collection have time series data related to fire?"],
-        n_results=100
-    )
+    # results = query_collection(
+    #     collection,
+    #     query_texts=["Which data set in the collection have time series data related to fire?"],
+    #     n_results=100
+    # )
 
-    count = 0
-    documents = results["documents"][0]
-    for doc in documents:
-        if "fire" in doc.lower():
-            print(doc)
-            count += 1
-            exit(0)
-    print(f"Found {count} documents related to fire in the results.")
+    # count = 0
+    # documents = results["documents"][0]
+    # for doc in documents:
+    #     if "fire" in doc.lower():
+    #         print(doc)
+    #         count += 1
+    #         exit(0)
+    # print(f"Found {count} documents related to fire in the results.")
 
     # print(f"{results.count()} documents found.")
     # for r in results["documents"]:

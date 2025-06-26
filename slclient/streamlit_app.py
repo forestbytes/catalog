@@ -1,13 +1,27 @@
 import streamlit as st
+import chromadb
+
+collection_name = "usfs_collection"
+chroma_client = chromadb.HttpClient(host='localhost', port=8000)
+collection = chroma_client.get_or_create_collection(name=collection_name)
+
+def query_collection(collection, query_texts, n_results=5):
+    """
+    Queries the collection with the given texts and returns the results.
+    """
+
+    results = collection.query(
+        query_texts=query_texts,  # Chroma will embed this for you
+        n_results=n_results  # how many results to return
+    )
+    return results
 
 st.title("🌲 USFS Data Catalog")
 st.write("Ask me anything about the US Forest Service data! ")
 
+
 quesiton = None
 with st.form("user_input_form", clear_on_submit=True):
-    # Create a text input field for user questions
-    # The key is used to uniquely identify the input field
-    # The placeholder provides a hint to the user about what to enter
     question = st.text_input(
         "Enter your question here:",
         key="user_input",
@@ -18,22 +32,15 @@ with st.form("user_input_form", clear_on_submit=True):
 if question:
     # Display the user's question
     st.write(f"You asked: {question}")
-
-    # Here you would typically call a function to process the question
-    # and return relevant information from the USFS data.
-    # For now, we will just simulate a response.
     st.write("Processing your question...")
-
-    # Simulated response
-    st.write("Here are some resources related to your question:")
-
-    mock_results = [
-        "1. Fake search result 1",
-        "2. Fake search result 2",
-        "3. Fake search result 3",
-        "4. Fake search result 4",
-        "5. Fake search result 5",
-    ]
-
-    for result in mock_results:
-        st.write(result)
+    results = query_collection(
+        collection,
+        query_texts=[question],
+        n_results=5
+    )
+    if not results["documents"] and len(results["documents"][0]) > 0:
+        st.write("No results found for your question.")
+    else:
+        st.write("Here are some resources related to your question:")
+        for i, doc in enumerate(results["documents"][0]):
+            st.write(doc)
