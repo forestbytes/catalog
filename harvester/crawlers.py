@@ -4,9 +4,15 @@ import re
 import arrow
 from dotenv import load_dotenv
 import os
-import uuid
+import json
+import hashlib
 
 load_dotenv()
+
+
+def hash_string(s):
+    """Generate a SHA-256 hash of the input string."""
+    return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 
 def strip_html_tags(text):
@@ -14,6 +20,46 @@ def strip_html_tags(text):
     stripped_text = soup.get_text()
     stripped_text = stripped_text.replace("\n", " ")
     return stripped_text
+
+
+def find_duplicate_documents(documents):
+    seen = set()
+    duplicates = []
+
+    for doc in documents:
+        id = doc.get("id")
+        if id in seen:
+            duplicates.append(doc)
+        else:
+            seen.add(id)
+
+    return duplicates
+
+
+def get_keywords(item):
+    """Extract keywords from the item."""
+    keywords = []
+    if "keywords" in item:
+        keywords = [
+            keyword.strip()
+            for keyword in item["keywords"].split(",")
+            if keyword.strip()
+        ]
+    return keywords
+
+
+def merge_docs(*docs) -> list:
+    documents = []
+    document_ids = []
+
+    for doc_list in docs:
+        for doc in doc_list:
+            doc_id = doc.get("id")
+            if doc_id not in document_ids:
+                documents.append(doc)
+                document_ids.append(doc_id)
+
+    return documents
 
 
 class FSGeodataHarvester:
@@ -72,10 +118,9 @@ class FSGeodataHarvester:
                 else:
                     modified = ""
 
-                # Generate a UUID4 (random UUID)
-                unique_id = uuid.uuid4()
+
                 asset = {
-                    "id": unique_id,
+                    "id": hash_string(title.lower().strip()),
                     "title": title,
                     "description": abstract,
                     "modified": modified,
@@ -93,18 +138,113 @@ class DataHubHarvester:
         self.source_url = "https://data-usfs.hub.arcgis.com/api/feed/dcat-us/1.1.json"
         self.temp_folder = "./tmp"
 
+    def download_metadata_files(self):
+        if not os.path.exists(self.temp_folder):
+            os.makedirs(self.temp_folder)
+
+        response = requests.get(self.source_url)
+        if response.status_code == 200:
+            with open(f"{self.temp_folder}/datahub_metadata.json", "w") as f:
+                f.write(response.text)
+        else:
+            print(f"Failed to download metadata files: {response.status_code}")
+
+    def read_json_file(self):
+        """Parse the JSON file and return its content."""
+        with open(f"{self.temp_folder}/datahub_metadata.json", "r") as f:
+            return json.load(f)
+
+    def parse_metadata(self):
+        assets = []
+
+        json_data = self.read_json_file()
+
+        for item in json_data.get("dataset", []):
+            title = item.get("title", "").strip().lower()
+            keywords = get_keywords(item.get("keyword", []))
+            data = {
+                "id": hash_string(title),
+                "title": item.get("title"),
+                "identifier": item.get("identifier"),
+                "description": strip_html_tags(item.get("description")),
+                "url": item.get("url"),
+                "keywords": keywords,
+            }
+            assets.append(data)
+
+        return assets
+
 
 class RDAHarvester:
     def __init__(self):
         self.source_url = "https://www.fs.usda.gov/rds/archive/webservice/datagov"
         self.temp_folder = "./tmp"
 
+    def download_metadata_files(self):
+        if not os.path.exists(self.temp_folder):
+            os.makedirs(self.temp_folder)
+
+        response = requests.get(self.source_url)
+        if response.status_code == 200:
+            with open(f"{self.temp_folder}/rda_metadata.json", "w") as f:
+                f.write(response.text)
+        else:
+            print(f"Failed to download metadata files: {response.status_code}")
+
+    def read_json_file(self):
+        """Parse the JSON file and return its content."""
+        with open(f"{self.temp_folder}/rda_metadata.json", "r") as f:
+            return json.load(f)
+
+    def parse_metadata(self):
+        assets = []
+
+        json_data = self.read_json_file()
+
+        for item in json_data.get("dataset", []):
+            title = item.get("title", "").strip().lower()
+            keywords = get_keywords(item.get("keyword", []))
+            data = {
+                "id": hash_string(title),
+                "title": item.get("title"),
+                "identifier": item.get("identifier"),
+                "description": strip_html_tags(item.get("description")),
+                "url": item.get("url"),
+                "keywords": keywords,
+            }
+            assets.append(data)
+
+        return assets
 
 
 def main():
     fsgeodata = FSGeodataHarvester()
-    fsgeodata.download_metadata_files()
+    # fsgeodata.download_metadata_files()
     fsgeodata_documents = fsgeodata.parse_metadata()
+    print(f"Extracted {len(fsgeodata_documents)} items from FS Geodata.")
+
+    datahub = DataHubHarvester()
+    # datahub.download_metadata_files()
+    datahub_documents = datahub.parse_metadata()
+    print(f"Extracted {len(datahub_documents)} items from DataHub.")
+
+    rda = RDAHarvester()
+    # rda.download_metadata_files()
+    rda_documents = rda.parse_metadata()
+    print(f"Extracted {len(rda_documents)} items from RDA.")
+
+    documents = fsgeodata_documents + datahub_documents + rda_documents
+    print(f"Total documents extracted: {len(documents)}")
+
+    documents = merge_docs(fsgeodata_documents, datahub_documents, rda_documents)
+
+    duplicates = find_duplicate_documents(documents)
+    if duplicates:
+        print(f"Found {len(duplicates)} duplicate documents based on title:")
+        for dup in duplicates:
+            print(f"- {dup['id']}: {dup['title']}, {dup['keywords']}")
+
+    print(f"{len(documents)} documents after merging and deduplication.")
 
 
 if __name__ == "__main__":
