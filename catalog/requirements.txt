@@ -1,4 +1,0 @@
-chromadb
-uuid
-pgvector
-psycopg2-binary
