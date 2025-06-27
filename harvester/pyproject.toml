@@ -5,7 +5,10 @@ description = "USFS Metadata Harvester"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "arrow>=1.3.0",
     "bs4>=0.0.2",
+    "lxml>=6.0.0",
+    "python-dotenv>=1.1.1",
     "requests>=2.32.4",
     "ruff>=0.12.1",
 ]
