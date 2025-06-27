@@ -1,0 +1,11 @@
+[project]
+name = "harvester"
+version = "0.1.0"
+description = "USFS Metadata Harvester"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "bs4>=0.0.2",
+    "requests>=2.32.4",
+    "ruff>=0.12.1",
+]
