@@ -1,0 +1,36 @@
+services:
+
+  #catalog:
+  #  build:
+  #    context: ./catalog
+  #    dockerfile: Dockerfile
+  #  env_file:
+  #    - .env
+  #  volumes:
+  #    - $PWD:/catalog
+  #  tty: true
+  #  stdin_open: true
+  #  restart: unless-stopped
+
+  pgsql:
+    extends:
+      file: ./pgsql/compose.yml
+      service: postgres
+    env_file:
+      - .env
+
+  mongodb:
+    extends:
+      file: ./mongodb/compose.yml
+      service: mongodb
+    env_file:
+      - .env
+
+  adminer:
+    extends:
+      file: ./pgsql/compose.yml
+      service: adminer
+
+volumes:
+  pgdata:
+  mongodata:
