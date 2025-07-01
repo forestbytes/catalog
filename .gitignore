@@ -1,4 +1,4 @@
-docker/pgsql
+docker/pgsql/data/
 tmp/
 *scratch*
 # Byte-compiled / optimized / DLL files
