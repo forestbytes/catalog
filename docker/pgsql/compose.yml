@@ -1,0 +1,15 @@
+services:
+
+  postgres:
+    image: ankane/pgvector:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - 8080:8080
