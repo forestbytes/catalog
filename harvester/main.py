@@ -7,6 +7,15 @@ def cli():
     pass
 
 def _harvest_fsgeodata():
+    """
+    Harvests and parses metadata from FS Geodata.
+
+    This function initializes an FSGeodataHarvester instance, downloads the required metadata files,
+    parses them, and returns the resulting documents.
+
+    Returns:
+        list: A list of parsed FS Geodata metadata documents.
+    """
     """Harvest data from FS Geodata."""
     fsgeodata = FSGeodataHarvester()
     fsgeodata.download_metadata_files()
@@ -15,13 +24,31 @@ def _harvest_fsgeodata():
 
 @click.command()
 def harvest_fsgeodata():
+    """
+    Harvests data from the FS Geodata source and outputs the number of extracted items.
+
+    This function calls the internal `_harvest_fsgeodata` function to retrieve documents from FS Geodata,
+    then prints the total number of items extracted.
+
+    Returns:
+        None
+    """
     """Harvest data from FS Geodata."""
     documents = _harvest_fsgeodata()
     click.echo(f"Extracted {len(documents)} items from FS Geodata.")
 
 
 def _harvest_datahub():
-    """Harvest data from DataHub."""
+    """
+    Harvests metadata documents from a DataHub source.
+
+    This function initializes a DataHubHarvester instance, downloads the necessary metadata files,
+    parses them, and returns the resulting documents.
+
+    Returns:
+        list: A list of parsed metadata documents from DataHub.
+    """
+
     datahub = DataHubHarvester()
     datahub.download_metadata_files()
     datahub_documents = datahub.parse_metadata()
@@ -30,6 +57,15 @@ def _harvest_datahub():
 
 @click.command()
 def harvest_datahub():
+    """
+    Harvests data from DataHub and prints the number of extracted items.
+
+    This function calls the internal `_harvest_datahub` function to retrieve documents from DataHub,
+    then prints the total number of items extracted.
+
+    Returns:
+        None
+    """
     """Harvest data from DataHub."""
     documents = _harvest_datahub()
     print(f"Extracted {len(documents)} items from DataHub.")
@@ -53,7 +89,22 @@ def harvest_rda():
 @click.command()
 @click.pass_context
 def harvest_all(ctx):
-    """Harvest data from all sources."""
+    """
+    Harvests documents from multiple sources, merges them, and identifies duplicates.
+
+    This function performs the following steps:
+    1. Harvests documents from three sources: DataHub, FSGEODATA, and RDA.
+    2. Merges the harvested documents into a single collection.
+    3. Identifies and prints duplicate documents based on their titles.
+    4. Prints the total number of documents before and after merging and deduplication.
+
+    Args:
+        ctx: Context object containing configuration or runtime information.
+
+    Returns:
+        None
+    """
+
     fsgeodata_docs = _harvest_datahub()
     datahub_docs = _harvest_fsgeodata()
     rda_docs = _harvest_rda()
@@ -80,27 +131,3 @@ cli.add_command(harvest_all)
 
 if __name__ == '__main__':
     cli()
-
-# def main():
-
-#     print("Hello from harvester!")
-#     fsgeodata = FSGeodataHarvester()
-
-
-# if __name__ == "__main__":
-#     main()
-
-
-# import click
-
-# @click.command()
-# @click.option('--count', default=1, help='Number of greetings.')
-# @click.option('--name', prompt='Your name',
-#               help='The person to greet.')
-# def hello(count, name):
-#     """Simple program that greets NAME for a total of COUNT times."""
-#     for x in range(count):
-#         click.echo(f"Hello {name}!")
-
-# if __name__ == '__main__':
-#     hello()
