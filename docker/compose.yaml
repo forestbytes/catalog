@@ -1,0 +1,94 @@
+services:
+
+  pgdb:
+    container_name: catalog_pgdb
+    hostname: pgdb
+    image: ankane/pgvector:latest
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - catalog_network
+
+  mongodb:
+    image: mongo:latest
+    container_name: catalog_mongodb
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - mongodata:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - catalog_network
+
+  adminer:
+    image: adminer:latest
+    container_name: catalog_adminer
+    hostname: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pgdb
+    networks:
+      - catalog_network
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: catalog_open_webui
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - open_webui_data:/app/backend/data
+    ports:
+      - "3000:8080"
+    depends_on:
+        - pgdb
+    networks:
+      - catalog_network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    hostname: ollama
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - catalog_network
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm
+    hostname: litellm
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml:ro
+    ports:
+      - "4000:4000"
+    depends_on:
+        - pgdb
+    command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "1"]
+    networks:
+      - catalog_network
+
+volumes:
+  postgres_data:
+  mongodata:
+  open_webui_data:
+  ollama_data:
+
+networks:
+    catalog_network:
+        driver: bridge
