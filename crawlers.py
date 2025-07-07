@@ -113,19 +113,22 @@ class FSGeodataHarvester:
                 themekeys = soup.find_all("themekey")
                 keywords = [tk.get_text() for tk in themekeys]
                 idinfo_citation_citeinfo_pubdate = soup.find("pubdate")
+
                 if idinfo_citation_citeinfo_pubdate:
-                    modified = arrow.get(idinfo_citation_citeinfo_pubdate.get_text())
+                    modified = str(
+                        arrow.get(idinfo_citation_citeinfo_pubdate.get_text())
+                    )
                 else:
                     modified = ""
-
 
                 asset = {
                     "id": hash_string(title.lower().strip()),
                     "title": title,
                     "description": abstract,
-                    "modified": modified,
+                    # "modified": modified,
                     "metadata_source_url": url,
                     "keywords": keywords,
+                    "src": "fsgeodata",
                 }
 
                 assets.append(asset)
@@ -169,6 +172,7 @@ class DataHubHarvester:
                 "description": strip_html_tags(item.get("description")),
                 "url": item.get("url"),
                 "keywords": keywords,
+                "src": "datahub",
             }
             assets.append(data)
 
@@ -211,6 +215,7 @@ class RDAHarvester:
                 "description": strip_html_tags(item.get("description")),
                 "url": item.get("url"),
                 "keywords": keywords,
+                "src": "rda",
             }
             assets.append(data)
 

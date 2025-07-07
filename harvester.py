@@ -1,10 +1,17 @@
 import click
-from crawlers import FSGeodataHarvester, DataHubHarvester, RDAHarvester, merge_docs, find_duplicate_documents
+from crawlers import (
+    FSGeodataHarvester,
+    DataHubHarvester,
+    RDAHarvester,
+    merge_docs,
+    find_duplicate_documents,
+)
 
 
 @click.group()
 def cli():
     pass
+
 
 def _harvest_fsgeodata():
     """
@@ -21,6 +28,7 @@ def _harvest_fsgeodata():
     fsgeodata.download_metadata_files()
     fsgeodata_documents = fsgeodata.parse_metadata()
     return fsgeodata_documents
+
 
 @click.command()
 def harvest_fsgeodata():
@@ -129,5 +137,5 @@ cli.add_command(harvest_rda)
 cli.add_command(harvest_all)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

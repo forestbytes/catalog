@@ -9,6 +9,8 @@ __pycache__/
 *$py.class
 chroma_db/
 test.out
+usfs_docs.json
+
 # C extensions
 *.so
 
