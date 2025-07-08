@@ -9,6 +9,7 @@ dependencies = [
     "bs4>=0.0.2",
     "click>=8.2.1",
     "lxml>=6.0.0",
+    "mkdocs-material>=9.6.15",
     "python-dotenv>=1.1.1",
     "requests>=2.32.4",
 ]

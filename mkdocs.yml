@@ -1,15 +1,23 @@
 site_name: USFS Data Catalog
 theme:
-  name: readthedocs
+  name: material
 #   palette:
 #     primary: indigo
 #     accent: indigo
+
 plugins:
     - search
 
+markdown_extensions:
+#   - admonition
+#   - codehilite
+#   - footnotes
+#   - meta
+#   - toc:
+#       permalink: True
+    - attr_list
 nav:
   - Home: index.md
-  - Introduction: introduction.md
 
 extra_css:
   - extras/styles.css
