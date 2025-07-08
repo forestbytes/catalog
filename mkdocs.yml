@@ -1,1 +1,9 @@
 site_name: USFS Data Catalog
+theme:
+  name: readthedocs
+#   palette:
+#     primary: indigo
+#     accent: indigo
+nav:
+  - Home: index.md
+  - Introduction: introduction.md
