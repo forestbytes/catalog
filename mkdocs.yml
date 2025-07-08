@@ -4,6 +4,12 @@ theme:
 #   palette:
 #     primary: indigo
 #     accent: indigo
+plugins:
+    - search
+
 nav:
   - Home: index.md
   - Introduction: introduction.md
+
+extra_css:
+  - extras/styles.css
