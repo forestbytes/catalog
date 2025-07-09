@@ -26,16 +26,16 @@ services:
 #     networks:
 #       - catalog_network
 
-#   adminer:
-#     image: adminer:latest
-#     container_name: catalog_adminer
-#     hostname: adminer
-#     ports:
-#       - "8080:8080"
-#     depends_on:
-#       - pgdb
-#     networks:
-#       - catalog_network
+  adminer:
+    image: adminer:latest
+    container_name: catalog_adminer
+    hostname: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pgdb
+    networks:
+      - catalog_network
 
 #   open-webui:
 #     image: ghcr.io/open-webui/open-webui:main
