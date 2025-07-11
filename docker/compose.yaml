@@ -13,29 +13,29 @@ services:
     networks:
       - catalog_network
 
-#   mongodb:
-#     image: mongo:latest
-#     container_name: catalog_mongodb
-#     env_file:
-#       - .env
-#     restart: unless-stopped
-#     volumes:
-#       - mongodata:/data/db
-#     ports:
-#       - 27017:27017
-#     networks:
-#       - catalog_network
-
-  adminer:
-    image: adminer:latest
-    container_name: catalog_adminer
-    hostname: adminer
+  mongodb:
+    image: mongo:latest
+    container_name: catalog_mongodb
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - mongodata:/data/db
     ports:
-      - "8080:8080"
-    depends_on:
-      - pgdb
+      - 27017:27017
     networks:
       - catalog_network
+
+#   adminer:
+#     image: adminer:latest
+#     container_name: catalog_adminer
+#     hostname: adminer
+#     ports:
+#       - "8080:8080"
+#     depends_on:
+#       - pgdb
+#     networks:
+#       - catalog_network
 
 #   open-webui:
 #     image: ghcr.io/open-webui/open-webui:main
@@ -86,8 +86,8 @@ services:
 volumes:
   postgres_data:
   mongodata:
-  open_webui_data:
-  ollama_data:
+  # open_webui_data:
+  # ollama_data:
 
 networks:
     catalog_network:
