@@ -1,8 +1,11 @@
-import re
+import os
 import json
 import psycopg2
 from typing import List
 from sentence_transformers import SentenceTransformer
+from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from rich import print as rprint
+
 from harvester import (
     _harvest_datahub,
     _harvest_fsgeodata,
@@ -10,51 +13,13 @@ from harvester import (
     merge_docs,
     find_duplicate_documents,
 )
+from schema import USFSDocument
 
+dbname = os.environ.get("PG_DBNAME") or "postgres"
+dbuser = os.environ.get("POSTGRES_USER")
+dbpass = os.environ.get("POSTGRES_PASSWORD")
 
-pg_connection_string = "dbname=postgres user=postgres password=sql77! host='0.0.0.0'"
-
-def remove_unicode(text):
-    return text.encode("ascii", "ignore").decode("ascii")
-
-def retrieve_docs():
-    """Retrieve documents from various sources."""
-    docs = []
-
-    fsgeodata_docs = _harvest_fsgeodata()
-    datahub_docs = _harvest_datahub()
-    rda_docs = _harvest_rda()
-
-    docs = merge_docs(fsgeodata_docs, datahub_docs, rda_docs)
-
-    duplicates = find_duplicate_documents(docs)
-    if duplicates:
-        print(f"Found {len(duplicates)} duplicate documents based on title:")
-        for dup in duplicates:
-            print(f"- {dup['id']}: {dup['title']}, {dup['keywords']}")
-
-    return docs
-
-
-def chunk_by_sentences(text: str, max_sentences: int = 3) -> List[str]:
-    """Split text into chunks by sentence groups"""
-    # Split by sentence-ending punctuation
-    sentences = re.split(r'[.!?]+', text)
-    sentences = [s.strip() for s in sentences if s.strip()]
-
-    if len(sentences) <= max_sentences:
-        return [text]
-
-    chunks = []
-    for i in range(0, len(sentences), max_sentences):
-        chunk_sentences = sentences[i:i + max_sentences]
-        chunk = '. '.join(chunk_sentences)
-        if not chunk.endswith('.'):
-            chunk += '.'
-        chunks.append(chunk)
-
-    return chunks
-
+pg_connection_string = f"dbname={dbname} user={dbuser} password={dbpass} host='0.0.0.0'"
 
 def empty_documents_table():
     """Empty the documents table in the vector database."""
@@ -64,6 +29,7 @@ def empty_documents_table():
         cur.execute("DELETE FROM documents")
         conn.commit()
         cur.close()
+
     print("Documents table emptied.")
 
 
@@ -81,7 +47,7 @@ def save_to_vector_db(embedding, metadata, title="", desc=""):
                     metadata['chunk_text'],
                     embedding.tolist(),
                     title,
-                    remove_unicode(desc),
+                    desc,
                     metadata['keywords'],
                     metadata['src']
                 )
@@ -89,80 +55,96 @@ def save_to_vector_db(embedding, metadata, title="", desc=""):
         except psycopg2.errors.UniqueViolation as e:
             print(f"IntegrityError: {e}, doc_id: {metadata['doc_id']}")
             conn.rollback()
+
+        cur.close()
         conn.commit()
+
+
+def load_documents_from_json(json_path: str) -> List[USFSDocument]:
+    with open(json_path, "r") as f:
+        data = json.load(f)
+    # If the JSON is a list of dicts:
+    return [USFSDocument(**item) for item in data]
+
+def count_docs():
+
+    with psycopg2.connect(pg_connection_string) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM documents")
+        rec = cur.fetchone()
         cur.close()
 
+        return rec[0] or None
 
-def chunk_document(doc, chunk_size=1000, overlap=200):
 
+def load_usfs_docs_into_postgres(docs):
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
-    # Combine all text fields into a single text for chunking
-    full_text = f"Title: {doc['title']}\n\nDescription: {doc['description']}\n\n"
+    recursive_text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size = 65,
+        chunk_overlap=0
+    ) # ["\n\n", "\n", " ", ""] 65,450
 
-    # Add keywords if present
-    if doc.get('keywords'):
-       keywords_text = "Keywords: " + ", ".join(doc['keywords'])
-       full_text += keywords_text + "\n\n"
+    for fsdoc in docs:
+        title = fsdoc.title
+        description = fsdoc.description
+        keywords = ",".join(kw for kw in fsdoc.keywords) or []
+        combined_text = f"Title: {title}\nDescription: {description}\nKeywords: {keywords}"
 
-    tokens = model.encode(full_text, convert_to_tensor=True)
-    chunks = chunk_by_sentences(full_text, max_sentences=10)
-
-
-def load_usfs_docs_into_postgres():
-
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-
-    json_data = None
-    with open("./tmp/usfs_docs.json", "r") as f:
-        json_data = json.load(f)
-
-    doc_count = 0
-    for doc in json_data:
-        title = doc.get("title", "")
-        desc = doc.get("description", "")
-        keywords = doc.get("keywords", [])
-        source = doc.get("src", "")
-
-        full_text = f"Title: {title}\n\nDescription: {desc}"
-        if keywords:
-            full_text += f"\n\nKeywords: {', '.join(keywords)}"
-
-        chunks = chunk_by_sentences(full_text, max_sentences=5)
-        # embeddings = model.encode(chunks, convert_to_tensor=True)
-        embeddings = model.encode(chunks)
-
-        chunked_data = list(zip(chunks, embeddings))
-        for idx, chunk in enumerate(chunked_data):
-            chunk_text, embedding = chunk
+        chunks = recursive_text_splitter.create_documents([combined_text])
+        for idx, chunk in enumerate(chunks):
             metadata = {
-                'doc_id': doc.get('id'),
+                'doc_id': fsdoc.id,  # or fsdoc.doc_id if that's the field name
                 'chunk_type': 'title+description+keywords',
                 'chunk_index': idx,
-                'chunk_text': chunk_text,
-                'title': title,
-                'description': desc,
-                'keywords': keywords,
-                'src': source,
+                'chunk_text': chunk.page_content,
+                'title': fsdoc.title,
+                'description': fsdoc.description,
+                'keywords': fsdoc.keywords,
+                'src': fsdoc.src  # or another source identifier
             }
 
-            save_to_vector_db(embedding=embedding, metadata=metadata, title=title, desc=desc)
+            embedding = model.encode(chunk.page_content)
 
-        doc_count += 1
-        if doc_count > 25:
-            break
+            save_to_vector_db(
+                embedding=embedding,
+                metadata=metadata,
+                title=fsdoc.title,
+                desc=fsdoc.description
+            )
+
 
 
 def main():
-    # docs = retrieve_docs()
-    # print(f"Total documents extracted: {len(docs)}")
 
-    # with open("./tmp/usfs_docs.json", "w") as f:
-    #     json.dump(docs, f, indent=2, ensure_ascii=False)
+    doc_count = count_docs()
+    print(f"USFS Catalog document count: {doc_count}")
 
-    empty_documents_table()
-    load_usfs_docs_into_postgres()
+    # empty_documents_table()
+
+    json_path = "./tmp/usfs_docs.json"
+    fsdocs = load_documents_from_json(json_path)
+    load_usfs_docs_into_postgres(fsdocs)
+
 
 
 if __name__ == "__main__":
     main()
+
+"""
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=20)
+
+for doc in fsdocs:
+    # Combine fields into one string
+    combined_text = f"Title: {doc.title}\nDescription: {doc.description}\nKeywords: {', '.join(doc.keywords or [])}"
+    # Chunk the combined text
+    chunks = text_splitter.create_documents([combined_text])
+    for chunk in chunks:
+        embedding = model.encode(chunk.page_content)
+        # Save embedding and metadata (e.g., doc_id, chunk_index, etc.)
+        # save_to_vector_db(embedding, metadata, title=doc.title, desc=doc.description)
+"""
