@@ -1,7 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import re
-import arrow
 from dotenv import load_dotenv
 import os
 import json
@@ -112,14 +110,14 @@ class FSGeodataHarvester:
                     abstract = strip_html_tags(desc_block.find("abstract").get_text())
                 themekeys = soup.find_all("themekey")
                 keywords = [tk.get_text() for tk in themekeys]
-                idinfo_citation_citeinfo_pubdate = soup.find("pubdate")
+                # idinfo_citation_citeinfo_pubdate = soup.find("pubdate")
 
-                if idinfo_citation_citeinfo_pubdate:
-                    modified = str(
-                        arrow.get(idinfo_citation_citeinfo_pubdate.get_text())
-                    )
-                else:
-                    modified = ""
+                # if idinfo_citation_citeinfo_pubdate:
+                #     modified = str(
+                #         arrow.get(idinfo_citation_citeinfo_pubdate.get_text())
+                #     )
+                # else:
+                #     modified = ""
 
                 asset = {
                     "id": hash_string(title.lower().strip()),

@@ -8,6 +8,7 @@ dependencies = [
     "arrow>=1.3.0",
     "bs4>=0.0.2",
     "click>=8.2.1",
+    "fastapi[all]>=0.116.1",
     "langchain>=0.3.26",
     "langchain-text-splitters>=0.3.8",
     "lxml>=6.0.0",
