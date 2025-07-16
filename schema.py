@@ -19,6 +19,7 @@ class USFSDocument(BaseModel):
         keywords (Optional[List[str]]): List of keywords associated with the document.
         src (Optional[str]): Source or URL of the document.
     """
+
     id: str
     title: str
     description: str

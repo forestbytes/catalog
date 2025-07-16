@@ -1,147 +1,149 @@
 import os
-import json
+
+# import json
 import psycopg2
-from typing import List
-from sentence_transformers import SentenceTransformer
-from langchain_text_splitters import (
-    RecursiveCharacterTextSplitter,
-)
+from dotenv import load_dotenv
+import click
+from helpers.db import empty_documents_table, count_documents
+from crawlers import FSGeodataHarvester, DataHubHarvester, RDAHarvester
 
-# from harvester import (
-#     _harvest_datahub,
-#     _harvest_fsgeodata,
-#     _harvest_rda,
+# from typing import List
+# from sentence_transformers import SentenceTransformer
+# from langchain_text_splitters import (
+#     RecursiveCharacterTextSplitter,
 # )
-from schema import USFSDocument
 
-dbname = os.environ.get("PG_DBNAME") or "postgres"
-dbuser = os.environ.get("POSTGRES_USER")
-dbpass = os.environ.get("POSTGRES_PASSWORD")
+# # from harvester import (
+# #     _harvest_datahub,
+# #     _harvest_fsgeodata,
+# #     _harvest_rda,
+# # )
+# from schema import USFSDocument
 
-pg_connection_string = f"dbname={dbname} user={dbuser} password={dbpass} host='0.0.0.0'"
+load_dotenv()
 
+# def save_to_vector_db(embedding, metadata, title="", desc=""):
+#     with psycopg2.connect(pg_connection_string) as conn:
+#         try:
+#             cur = conn.cursor()
+#             cur.execute(
+#                 "INSERT INTO documents (doc_id, chunk_type, chunk_index, chunk_text, embedding, title, description, keywords, data_source) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+#                 (
+#                     metadata["doc_id"],
+#                     metadata["chunk_type"],
+#                     metadata["chunk_index"],
+#                     metadata["chunk_text"],
+#                     embedding.tolist(),
+#                     title,
+#                     desc,
+#                     metadata["keywords"],
+#                     metadata["src"],
+#                 ),
+#             )
+#         except psycopg2.errors.UniqueViolation as e:
+#             print(f"IntegrityError: {e}, doc_id: {metadata['doc_id']}")
+#             conn.rollback()
 
-def empty_documents_table():
-    """Empty the documents table in the vector database."""
+#         cur.close()
+#         conn.commit()
 
-    with psycopg2.connect(pg_connection_string) as conn:
-        cur = conn.cursor()
-        cur.execute("DELETE FROM documents")
-        conn.commit()
-        cur.close()
+# def load_usfs_docs_into_postgres(docs):
+#     model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    print("Documents table emptied.")
+#     recursive_text_splitter = RecursiveCharacterTextSplitter(
+#         chunk_size=65, chunk_overlap=0
+#     )  # ["\n\n", "\n", " ", ""] 65,450
 
+#     for fsdoc in docs:
+#         title = fsdoc.title
+#         description = fsdoc.description
+#         keywords = ",".join(kw for kw in fsdoc.keywords) or []
+#         combined_text = (
+#             f"Title: {title}\nDescription: {description}\nKeywords: {keywords}"
+#         )
 
-def save_to_vector_db(embedding, metadata, title="", desc=""):
-    with psycopg2.connect(pg_connection_string) as conn:
-        try:
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO documents (doc_id, chunk_type, chunk_index, chunk_text, embedding, title, description, keywords, data_source) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (
-                    metadata["doc_id"],
-                    metadata["chunk_type"],
-                    metadata["chunk_index"],
-                    metadata["chunk_text"],
-                    embedding.tolist(),
-                    title,
-                    desc,
-                    metadata["keywords"],
-                    metadata["src"],
-                ),
-            )
-        except psycopg2.errors.UniqueViolation as e:
-            print(f"IntegrityError: {e}, doc_id: {metadata['doc_id']}")
-            conn.rollback()
+#         chunks = recursive_text_splitter.create_documents([combined_text])
+#         for idx, chunk in enumerate(chunks):
+#             metadata = {
+#                 "doc_id": fsdoc.id,  # or fsdoc.doc_id if that's the field name
+#                 "chunk_type": "title+description+keywords",
+#                 "chunk_index": idx,
+#                 "chunk_text": chunk.page_content,
+#                 "title": fsdoc.title,
+#                 "description": fsdoc.description,
+#                 "keywords": fsdoc.keywords,
+#                 "src": fsdoc.src,  # or another source identifier
+#             }
 
-        cur.close()
-        conn.commit()
+#             embedding = model.encode(chunk.page_content)
 
+#             save_to_vector_db(
+#                 embedding=embedding,
+#                 metadata=metadata,
+#                 title=fsdoc.title,
+#                 desc=fsdoc.description,
+#             )
 
-def load_documents_from_json(json_path: str) -> List[USFSDocument]:
-    with open(json_path, "r") as f:
-        data = json.load(f)
-    # If the JSON is a list of dicts:
-    return [USFSDocument(**item) for item in data]
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-
-def count_docs():
-    with psycopg2.connect(pg_connection_string) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM documents")
-        rec = cur.fetchone()
-        cur.close()
-
-        return rec[0] or None
-
-
-def load_usfs_docs_into_postgres(docs):
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-
-    recursive_text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=65, chunk_overlap=0
-    )  # ["\n\n", "\n", " ", ""] 65,450
-
-    for fsdoc in docs:
-        title = fsdoc.title
-        description = fsdoc.description
-        keywords = ",".join(kw for kw in fsdoc.keywords) or []
-        combined_text = (
-            f"Title: {title}\nDescription: {description}\nKeywords: {keywords}"
-        )
-
-        chunks = recursive_text_splitter.create_documents([combined_text])
-        for idx, chunk in enumerate(chunks):
-            metadata = {
-                "doc_id": fsdoc.id,  # or fsdoc.doc_id if that's the field name
-                "chunk_type": "title+description+keywords",
-                "chunk_index": idx,
-                "chunk_text": chunk.page_content,
-                "title": fsdoc.title,
-                "description": fsdoc.description,
-                "keywords": fsdoc.keywords,
-                "src": fsdoc.src,  # or another source identifier
-            }
-
-            embedding = model.encode(chunk.page_content)
-
-            save_to_vector_db(
-                embedding=embedding,
-                metadata=metadata,
-                title=fsdoc.title,
-                desc=fsdoc.description,
-            )
+fsgeodata = FSGeodataHarvester()
+datahub = DataHubHarvester()
+rda = RDAHarvester()
 
 
-def main():
-    doc_count = count_docs()
-    print(f"USFS Catalog document count: {doc_count}")
+@click.group()
+def cli():
+    """Command line interface for managing USFS documents."""
+    pass
 
-    # empty_documents_table()
 
-    json_path = "./tmp/usfs_docs.json"
-    fsdocs = load_documents_from_json(json_path)
-    load_usfs_docs_into_postgres(fsdocs)
+@cli.command()
+def clear_documents():
+    """Clear the documents table in the database."""
+    empty_documents_table()
+    print("Documents table cleared.")
+
+
+@cli.command()
+def document_count():
+    """Count the number of documents in the documents table."""
+
+    doc_count = count_documents()
+    print(f"Total documents in the vector database: {doc_count}")
+
+
+@cli.command()
+# @click.argument('json_path', type=click.Path(exists=True))
+def download_usfs_fsgeodata():
+    """Download USFS documents from a JSON file."""
+
+    print("Downloading USFS documents from FS Geodata...")
+    count = fsgeodata.download_metadata_files()
+    print(f"Downloaded {count} metadata files from FS Geodata.")
+
+
+@cli.command()
+def download_usfs_datahub():
+    """Download USFS documents from DataHub."""
+
+    print("Downloading USFS documents from DataHub...")
+    datahub.download_metadata_files()
+    print(f"Downloaded metadata file from DataHub.")
+
+
+@cli.command()
+def download_usfs_rda():
+    """Download USFS documents from RDA."""
+
+    print("Downloading USFS documents from RDA...")
+    rda.download_metadata_files()
+    print(f"Downloaded metadata file from RDA.")
+
+
+# json_path = "./tmp/usfs_docs.json"
+# fsdocs = load_documents_from_json(json_path)
+# load_usfs_docs_into_postgres(fsdocs)
 
 
 if __name__ == "__main__":
-    main()
-
-"""
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
-
-model = SentenceTransformer('all-MiniLM-L6-v2')
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=20)
-
-for doc in fsdocs:
-    # Combine fields into one string
-    combined_text = f"Title: {doc.title}\nDescription: {doc.description}\nKeywords: {', '.join(doc.keywords or [])}"
-    # Chunk the combined text
-    chunks = text_splitter.create_documents([combined_text])
-    for chunk in chunks:
-        embedding = model.encode(chunk.page_content)
-        # Save embedding and metadata (e.g., doc_id, chunk_index, etc.)
-        # save_to_vector_db(embedding, metadata, title=doc.title, desc=doc.description)
-"""
+    cli()

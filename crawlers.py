@@ -66,6 +66,7 @@ class FSGeodataHarvester:
         self.temp_folder = "./tmp"
 
     def download_metadata_files(self):
+        file_count = 0
         metadata_urls = []
 
         resp = requests.get(self.base_url)
@@ -88,6 +89,9 @@ class FSGeodataHarvester:
                 resp = requests.get(url)
                 with open(outfile_name, "wb") as f:
                     f.write(resp.content)
+                    file_count += 1
+
+        return file_count
 
     def parse_metadata(self):
         xml_files = [f for f in os.listdir(self.temp_folder) if f.endswith(".xml")]
