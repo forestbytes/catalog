@@ -62,3 +62,33 @@ def count_documents():
         cur.close()
 
     return doc_count
+
+
+def save_to_vector_db(embedding, metadata, title="", desc=""):
+    """
+    Saves a document's embedding and metadata to the 'documents' table in the vector database.
+    """
+
+    with psycopg2.connect(pg_connection_string) as conn:
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "INSERT INTO documents (doc_id, chunk_type, chunk_index, chunk_text, embedding, title, description, keywords, data_source) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    metadata["doc_id"],
+                    metadata["chunk_type"],
+                    metadata["chunk_index"],
+                    metadata["chunk_text"],
+                    embedding.tolist(),
+                    title,
+                    desc,
+                    metadata["keywords"],
+                    metadata["src"],
+                ),
+            )
+        except psycopg2.errors.UniqueViolation as e:
+            print(f"IntegrityError: {e}, doc_id: {metadata['doc_id']}")
+            conn.rollback()
+
+        cur.close()
+        conn.commit()

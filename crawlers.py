@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import json
 import hashlib
+from helpers.utils import merge_docs
 
 load_dotenv()
 
@@ -44,20 +45,6 @@ def get_keywords(item):
             if keyword.strip()
         ]
     return keywords
-
-
-def merge_docs(*docs) -> list:
-    documents = []
-    document_ids = []
-
-    for doc_list in docs:
-        for doc in doc_list:
-            doc_id = doc.get("id")
-            if doc_id not in document_ids:
-                documents.append(doc)
-                document_ids.append(doc_id)
-
-    return documents
 
 
 class FSGeodataHarvester:
