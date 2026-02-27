@@ -1,0 +1,31 @@
+site_name: Catalog Documentation
+
+theme:
+  name: material
+
+plugins:
+    - search
+    - mermaid2
+    - asciinema-player
+    # - material/blog:
+    #     draft: true
+    #     draft_on_serve: true  # Show drafts in local dev server
+theme:
+  name: material
+  palette:
+    primary: custom
+
+nav:
+  - Home: index.md
+  - Vision: vision.md
+  - Architecture: architecture.md
+  - Methods: methods.md
+  - Search Methods:
+      - Simple: search_methods/simple.md
+      - Hybrid Search: search_methods/hybrid_search.md
+      - Bot: search_methods/bot.md
+  - Demos: demos.md
+  - Disclaimer: disclaimer.md
+
+extra_css:
+  - stylesheets/extra.css
