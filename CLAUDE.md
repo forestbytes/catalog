@@ -20,3 +20,4 @@ ruff format .
 - If you don't know the answer to something, don't guess, just say you don't know.
 - When asked to make recommendations make sure to ignore ALL files in the scratch folder.
 - Do not read any file with the text "scratch" in the name.
+- Never read the contents of the .env file
