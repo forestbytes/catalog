@@ -1,157 +1,16 @@
 # Catalog Project Analysis & Enhancement Suggestions
 
+Pending ehancements.
+
 ## Project Summary
 
 **Catalog** is a CLI-driven RAG (Retrieval-Augmented Generation) chatbot for discovering USFS geospatial datasets. It aggregates metadata from three federal data sources and provides semantic search capabilities via two distinct vector database implementations.
 
 ---
 
-## Executive Summary
-
-### Two RAG Approaches
-
-1. **ChromaDB** - Built-in embeddings, simpler setup
-2. **SQLite-vec** - Manual embeddings with sentence-transformers, more control
-
-### Methodology Strengths
-
-- Clean separation of concerns across layers
-- Unified Pydantic schema normalizing 3 heterogeneous sources
-- Rate limiting for respectful scraping
-- Lineage tracking from FSGeodata XML
-
-### Top Enhancement Recommendations
-
-1. **Hybrid Search** - Combine BM25 + vector for technical terms like "MTBS", "FIA"
-2. **Reranking** - Add cross-encoder for better precision (retrieve 20, rerank to 5)
-3. **Conversation Memory** - Enable follow-up questions
-4. **Evaluation Framework** - Create test queries to measure retrieval quality
-5. **Streaming Responses** - Better UX for long outputs
-
-### Blog/LinkedIn Ideas
-
-- "Building a RAG Chatbot for Federal Geospatial Data Discovery"
-- "Comparing ChromaDB vs sqlite-vec for Small-Scale RAG"
-- Problem/solution posts about fragmented federal data discovery
-
----
-
-## Architecture Overview
-
-### Data Ingestion Pipeline
-Three specialized loaders fetch and normalize metadata from USFS sources:
-
-| Loader | Source | Format | Documents |
-|--------|--------|--------|-----------|
-| `FSGeodataLoader` | data.fs.usda.gov | XML (scraped) | Metadata + lineage |
-| `RDALoader` | fs.usda.gov/rds/archive | JSON API | Research Data Archive |
-| `GeospatialDataDiscovery` | ArcGIS Hub | DCAT-US JSON | Geospatial datasets |
-
-### Two RAG Implementations
-
-**1. ChromaDB Approach** (`ChromaVectorDB`)
-- Uses ChromaDB's built-in embedding model
-- Simpler setup, automatic embedding generation
-- Persistent storage in `./chromadb/`
-
-**2. SQLite-vec Approach** (`SqliteVectorDB`)
-- Uses `sentence-transformers/all-MiniLM-L6-v2` for embeddings
-- Manual embedding generation with full control
-- Lightweight, single-file database
-
-### LLM Integration
-Two bot implementations for response generation:
-- `OpenAIBot`: OpenAI-compatible API (configured for CyVerse LLM API)
-- `OllamaBot`: Local/hosted Ollama instance
-
----
-
-## Blog & LinkedIn Documentation Strategy
-
-### Blog Post Ideas
-
-**1. "Building a RAG Chatbot for Federal Geospatial Data Discovery"**
-- Target audience: Data engineers, GIS professionals
-- Cover the problem (fragmented federal data sources)
-- Walk through the ETL pipeline design
-- Discuss tradeoffs between ChromaDB vs sqlite-vec
-
-**2. "Comparing Vector Databases: ChromaDB vs sqlite-vec for Small-Scale RAG"**
-- Technical comparison with benchmarks
-- When to choose each approach
-- Code examples from your implementation
-
-**3. "Democratizing Forest Service Data: A CLI Tool for Researchers"**
-- Target audience: Environmental researchers, data scientists
-- Focus on the use case and impact
-- Include example queries and outputs
-
-### LinkedIn Post Angles
-
-**Technical Achievement Post:**
-> Built a CLI tool that aggregates 3 federal geospatial data sources into a unified RAG chatbot. Implemented two vector DB approaches (ChromaDB + sqlite-vec) to compare tradeoffs. Open to feedback from the GIS/ML community.
-
-**Problem-Solution Post:**
-> Researchers waste hours searching fragmented USFS data portals. Built a semantic search tool that lets you ask "Is there wildfire boundary data?" instead of manually browsing 3 different catalogs.
-
-**Lessons Learned Post:**
-> What I learned building a RAG system from scratch:
-> - ChromaDB is faster to prototype, sqlite-vec gives more control
-> - Metadata quality matters more than embedding model choice
-> - Rate limiting is essential when scraping federal sites
-
----
-
-## Methodology Analysis
-
-### Strengths
-1. **Clean separation of concerns**: Data loading, schema, vector DB, and LLM layers are well-isolated
-2. **Unified schema**: `Document` model normalizes heterogeneous sources
-3. **Dual implementation approach**: Provides comparison basis and fallback options
-4. **Rate limiting**: Respectful 0.5s delay prevents overwhelming federal servers
-5. **Lineage tracking**: Captures data provenance from FSGeodata XML
-
-### Areas for Improvement
-1. **No conversation memory**: Each query is independent
-2. **No reranking**: Results ordered purely by vector similarity
-3. **Static context window**: Fixed 5 results passed to LLM
-4. **No evaluation framework**: No way to measure retrieval quality
-5. **Embedding model is generic**: Not optimized for geospatial domain
-
----
-
 ## Suggested AI Feature Enhancements
 
-### 1. Hybrid Search (BM25 + Vector)
-
-Combine keyword search with semantic search for better retrieval on technical terms.
-
-```python
-# Concept: Use rank fusion to combine results
-from rank_bm25 import BM25Okapi
-
-class HybridSearch:
-    def __init__(self, vector_db, documents):
-        self.vector_db = vector_db
-        tokenized = [doc.split() for doc in documents]
-        self.bm25 = BM25Okapi(tokenized)
-
-    def search(self, query, k=10, alpha=0.5):
-        # Get vector results
-        vector_results = self.vector_db.query(query, k=k*2)
-
-        # Get BM25 results
-        bm25_scores = self.bm25.get_scores(query.split())
-
-        # Reciprocal rank fusion
-        return self.fuse_results(vector_results, bm25_scores, alpha)
-```
-
-**Why**: Geospatial queries often contain specific terms (e.g., "MTBS", "FIA plots") that benefit from exact matching.
-
----
-
-### 2. Query Expansion with LLM
+### 1. Query Expansion with LLM
 
 Use the LLM to expand queries before retrieval.
 
@@ -172,7 +31,7 @@ def expand_query(self, original_query: str) -> list[str]:
 
 ---
 
-### 3. Conversation Memory with LangChain
+### 2. Conversation Memory with LangChain
 
 Add multi-turn conversation support.
 
@@ -201,7 +60,7 @@ class ConversationalCatalogBot:
 
 ---
 
-### 4. Reranking with Cross-Encoder
+### 3. Reranking with Cross-Encoder
 
 Add a reranking step to improve precision.
 
@@ -224,7 +83,7 @@ class Reranker:
 
 ---
 
-### 5. Domain-Specific Embeddings
+### 4. Domain-Specific Embeddings
 
 Fine-tune or use a geospatial-aware embedding model.
 
@@ -242,7 +101,7 @@ model = SentenceTransformer('BAAI/bge-base-en-v1.5')  # Better general performan
 
 ---
 
-### 6. Structured Output & Citations
+### 5. Structured Output & Citations
 
 Return structured responses with source citations.
 
@@ -268,7 +127,7 @@ STRUCTURED_PROMPT = """Based on the context, answer the question and return JSON
 
 ---
 
-### 7. Evaluation Framework
+### 6. Evaluation Framework
 
 Add retrieval quality metrics.
 
@@ -308,7 +167,7 @@ class RAGEvaluator:
 
 ---
 
-### 8. Streaming Responses
+### 7. Streaming Responses
 
 Add streaming for better UX on long responses.
 
@@ -327,7 +186,7 @@ def chat_stream(self, question: str, context: str):
 
 ---
 
-### 9. Caching Layer
+### 8. Caching Layer
 
 Cache embeddings and common queries.
 
@@ -353,7 +212,7 @@ class CachedVectorDB:
 
 ---
 
-### 10. Agentic RAG with Tool Use
+### 9. Agentic RAG with Tool Use
 
 Enable the LLM to decide when to search and what to search for.
 
@@ -384,22 +243,22 @@ TOOLS = [
 
 | Enhancement | Effort | Impact | Priority |
 |------------|--------|--------|----------|
-| Hybrid Search | Medium | High | 1 |
-| Reranking | Low | High | 2 |
-| Conversation Memory | Medium | High | 3 |
-| Streaming Responses | Low | Medium | 4 |
-| Evaluation Framework | Medium | High | 5 |
-| Structured Output | Low | Medium | 6 |
-| Query Expansion | Medium | Medium | 7 |
-| Caching | Low | Low | 8 |
-| Domain Embeddings | High | Medium | 9 |
-| Agentic RAG | High | High | 10 |
+| Reranking | Low | High | 1 |
+| Conversation Memory | Medium | High | 2 |
+| Streaming Responses | Low | Medium | 3 |
+| Evaluation Framework | Medium | High | 4 |
+| Structured Output | Low | Medium | 5 |
+| Query Expansion | Medium | Medium | 6 |
+| Caching | Low | Low | 7 |
+| Domain Embeddings | High | Medium | 8 |
+| Agentic RAG | High | High | 9 |
 
 ---
 
 ## Quick Wins (< 1 day each)
 
-1. Add `--stream` flag to chat commands for streaming output
-2. Implement result caching with TTL
-3. Add `--source` filter to limit search to specific data sources
-4. Create 10-20 test queries for evaluation baseline
+1. Add reranking with `cross-encoder/ms-marco-MiniLM-L-6-v2` (low effort, high impact)
+2. Add `--stream` flag to chat commands for streaming output
+3. Implement result caching with TTL
+4. Add `--source` filter to limit search to specific data sources
+5. Create 10-20 test queries for evaluation baseline
