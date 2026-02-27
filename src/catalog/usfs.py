@@ -318,6 +318,11 @@ class GeospatialDataDiscovery:
         os.makedirs(self.dest_output_dir, exist_ok=True)
 
         if response.status_code == 200:
+            try:
+                response.json()
+            except requests.exceptions.JSONDecodeError:
+                logger.error("GDD metadata response is not valid JSON")
+                return
             fpath = Path(self.dest_output_dir) / self.dest_output_file
             with open(fpath, "w", encoding="utf-8") as f:
                 f.write(response.text)
