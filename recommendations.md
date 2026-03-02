@@ -3,44 +3,7 @@
 This document outlines recommendations for improving the Catalog project based on comprehensive codebase reviews.
 
 
-### Add Pre-commit Hooks
-
-Consider adding a `.pre-commit-config.yaml` to enforce code quality:
-
-```yaml
-repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
-    hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
-```
-
----
-
-### Centralize Configuration
-
-Multiple files independently call `load_dotenv()` (`cli.py:7`, `bots.py:5`). `.env` contains many unused variables (`POSTGRES_*`, `X_API_KEY`, `GITHUB_TOKEN`, `GEMINI_API_KEY`, `OPENAI_API_KEY`). Consider a single configuration class:
-
-```python
-# config.py
-from pydantic_settings import BaseSettings
-
-class Settings(BaseSettings):
-    data_dir: str = "data/usfs"
-    chromadb_path: str = "./chromadb"
-    ollama_api_url: str = "https://ollama.com"
-    ollama_api_key: str = ""
-    ollama_model: str = "llama3"
-
-    class Config:
-        env_file = ".env"
-```
-
----
-
-## 9. Feature Suggestions
+## Feature Suggestions
 
 ### Add Progress Indicators
 
@@ -109,10 +72,11 @@ Since the current branch (`45-feature-add-llm-interaction-to-cli-chomadb-query`)
 | Medium       | Add conversation history for LLM                        | Pending |
 | Medium       | Implement Ollama streaming                              | Pending |
 | Low          | Refactor to subpackages                                 | Pending |
+| Low          | Add pre-commit hooks                                    | Done    |
 | Low          | Centralize configuration                                | Done    |
 
 ---
 
 Generated on 2026-01-26, last updated 2026-03-02
 
-**Summary:** 35 items completed, 9 items remaining
+**Summary:** 37 items completed, 7 items remaining
