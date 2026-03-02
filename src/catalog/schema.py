@@ -28,12 +28,16 @@ class USFSDocument(BaseModel):
     purpose: str | None = Field(
         default=None, description="Description of the data source's purpose."
     )
-    keywords: list[str] | None = Field(default_factory=list, description="List of the data source's keywords.")
+    keywords: list[str] | None = Field(
+        default_factory=list, description="List of the data source's keywords."
+    )
     src: str | None = Field(
         default=None,
         description="Description of the data source's source (e.g., fsgeodata, gdd, rda ).",
     )
-    lineage: list[dict] | None = Field(default_factory=list, description="List of the metadata's lineage.")
+    lineage: list[dict] | None = Field(
+        default_factory=list, description="List of the metadata's lineage."
+    )
     description: str | None = Field(
         default=None,
         description="Description of the data.",

@@ -39,7 +39,9 @@ class TestVerdeBot:
 
         with patch.dict("os.environ", env, clear=True):
             bot = VerdeBot()
-            with patch("langchain_litellm.ChatLiteLLM.invoke", return_value=mock_response) as mock_invoke:
+            with patch(
+                "langchain_litellm.ChatLiteLLM.invoke", return_value=mock_response
+            ) as mock_invoke:
                 result = bot.chat(question="fire data", context="some context")
 
                 assert result == "Here are some datasets."

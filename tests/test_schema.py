@@ -1,6 +1,5 @@
 """Tests for catalog.schema Pydantic models."""
 
-import pytest
 import warnings
 
 

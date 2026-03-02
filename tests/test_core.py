@@ -1,6 +1,5 @@
 """Tests for catalog.core ChromaDB integration."""
 
-import pytest
 import warnings
 
 

@@ -1,6 +1,5 @@
 """Tests for catalog.usfs data loaders."""
 
-import pytest
 import warnings
 
 
