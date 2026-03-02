@@ -244,7 +244,6 @@ client/.env.local
 client/.vite/
 client/*.log
 client/.DS_Store
-README.md
 
 # build output
 dist/
