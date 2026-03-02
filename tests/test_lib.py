@@ -1,6 +1,5 @@
 """Tests for catalog.lib utility functions."""
 
-import pytest
 import warnings
 
 
@@ -77,4 +76,6 @@ class TestDedupeCatalog:
 
     def test_dedupe_catalog_preserves_first_occurrence(self):
         """Test that dedupe_catalog keeps the first occurrence."""
-        warnings.warn("TODO: Implement test for first occurrence preservation", UserWarning)
+        warnings.warn(
+            "TODO: Implement test for first occurrence preservation", UserWarning
+        )

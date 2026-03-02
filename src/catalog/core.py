@@ -5,7 +5,11 @@ from catalog.schema import USFSDocument
 
 
 class ChromaVectorDB:
-    def __init__(self, db_path: str = "./chromadb", src_catalog_file: str = "data/usfs/catalog.json"):
+    def __init__(
+        self,
+        db_path: str = "./chromadb",
+        src_catalog_file: str = "data/usfs/catalog.json",
+    ):
         self.db_path = db_path
         self.src_catalog_file = src_catalog_file
         self.client = chromadb.PersistentClient(path=db_path)
@@ -98,9 +102,7 @@ class ChromaVectorDB:
 
             self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
 
-    def query(
-        self, qstn: str = None, nresults=5
-    ) -> list[tuple[USFSDocument, float]]:
+    def query(self, qstn: str = None, nresults=5) -> list[tuple[USFSDocument, float]]:
         """Query the collection. Returns list of (USFSDocument, distance) tuples.
         :param qstn: The question or query text.
         :type qstn: str

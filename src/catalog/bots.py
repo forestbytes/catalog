@@ -1,5 +1,4 @@
 from ollama import Client
-import requests
 from langchain_litellm import ChatLiteLLM
 from catalog.config import Settings
 
@@ -22,8 +21,7 @@ MESSAGE_CONTENT = (
 
 class OllamaBot:
     def __init__(self):
-        """Initializes the OllamaBot with API credentials from environment variables.
-        """
+        """Initializes the OllamaBot with API credentials from environment variables."""
         settings = Settings()
         self.OLLAMA_API_KEY = settings.ollama_api_key
         self.OLLAMA_BASE_URL = settings.ollama_api_url
@@ -67,8 +65,7 @@ class OllamaBot:
 
 class VerdeBot:
     def __init__(self):
-        """Initializes the VerdeBot with API credentials from environment variables.
-        """
+        """Initializes the VerdeBot with API credentials from environment variables."""
         settings = Settings()
         self.VERDE_API_KEY = settings.verde_api_key
         self.VERDE_URL = settings.verde_url
@@ -85,7 +82,7 @@ class VerdeBot:
         llm = ChatLiteLLM(
             model=f"litellm_proxy/{self.VERDE_MODEL}",
             api_key=self.VERDE_API_KEY,
-            api_base=self.VERDE_URL
+            api_base=self.VERDE_URL,
         )
 
         response = llm.invoke(question)

@@ -9,8 +9,7 @@ import json
 import logging
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("catalog")
 
@@ -147,7 +146,9 @@ class FSGeodataLoader:
 
         return datasets
 
-    def download_file(self, url: str, output_path: Path, description: str = "file") -> bool:
+    def download_file(
+        self, url: str, output_path: Path, description: str = "file"
+    ) -> bool:
         """Download a file from URL to output_path
 
         args:
@@ -182,7 +183,6 @@ class FSGeodataLoader:
             logger.error(f"Failed to download service info from {json_url}: {e}")
             return False
 
-
         return True
 
     def download_all(self):
@@ -206,7 +206,9 @@ class FSGeodataLoader:
             metadata_path = self.metadata_dir / f"{dataset['name']}.xml"
 
             if not metadata_path.exists():
-                if self.download_file(dataset["metadata_url"], metadata_path, "metadata"):
+                if self.download_file(
+                    dataset["metadata_url"], metadata_path, "metadata"
+                ):
                     stats["metadata_success"] += 1
                 else:
                     stats["metadata_failed"] += 1
@@ -397,8 +399,7 @@ class RDALoader:
             json_data = response.json()
 
             src_file = Path(self.dest_output_dir) / self.dest_output_file
-            with open(src_file, "w", encoding="utf-8"
-            ) as f:
+            with open(src_file, "w", encoding="utf-8") as f:
                 json.dump(json_data, f, indent=4)
 
     def parse_metadata(self):

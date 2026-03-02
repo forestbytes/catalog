@@ -1,8 +1,6 @@
 """Tests for catalog.cli Click commands."""
 
-import pytest
 import warnings
-from click.testing import CliRunner
 
 
 class TestHealthCommand:
