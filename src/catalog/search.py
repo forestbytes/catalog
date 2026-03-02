@@ -99,6 +99,7 @@ class HybridSearch:
                 id=meta.get("id", ""),
                 title=meta.get("title"),
                 abstract=meta.get("abstract"),
+                description=meta.get("description"),
                 purpose=meta.get("purpose"),
                 src=meta.get("source") or meta.get("src"),
                 keywords=keywords_str.split(",") if keywords_str else [],

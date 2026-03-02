@@ -67,6 +67,7 @@ class ChromaVectorDB:
                 title = doc.title or ""
                 abstract = doc.abstract or ""
                 purpose = doc.purpose or ""
+                description = doc.description or ""
                 source = doc.src or ""
                 lineage_str = (
                     self.extract_lineage_info(doc.lineage) if doc.lineage else ""
@@ -76,6 +77,7 @@ class ChromaVectorDB:
                 documents.append(
                     f"Title: {title}\n"
                     f"Abstract: {abstract}\n"
+                    f"Description: {description}\n"
                     f"Purpose: {purpose}\n"
                     f"Source: {source}\n"
                     f"Keywords: {', '.join(doc.keywords) if doc.keywords else ''}\n"
@@ -86,6 +88,7 @@ class ChromaVectorDB:
                         "id": doc.id,
                         "title": title,
                         "abstract": abstract,
+                        "description": description,
                         "source": source,
                         "purpose": purpose,
                         "keywords": ",".join(doc.keywords) if doc.keywords else "",
@@ -121,6 +124,7 @@ class ChromaVectorDB:
                         id=meta.get("id", ""),
                         title=meta.get("title"),
                         abstract=meta.get("abstract"),
+                        description=meta.get("description"),
                         purpose=meta.get("purpose"),
                         src=meta.get("source") or meta.get("src"),
                         keywords=keywords_str.split(",") if keywords_str else [],
