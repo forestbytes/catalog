@@ -35,15 +35,12 @@ class TestVerdeBot:
             "VERDE_MODEL": "test-model",
         }
         mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "choices": [{"message": {"content": "Here are some datasets."}}]
-        }
-        mock_response.raise_for_status = MagicMock()
+        mock_response.content = "Here are some datasets."
 
         with patch.dict("os.environ", env, clear=True):
             bot = VerdeBot()
-            with patch("requests.post", return_value=mock_response) as mock_post:
+            with patch("langchain_litellm.ChatLiteLLM.invoke", return_value=mock_response) as mock_invoke:
                 result = bot.chat(question="fire data", context="some context")
 
                 assert result == "Here are some datasets."
-                mock_post.assert_called_once()
+                mock_invoke.assert_called_once()

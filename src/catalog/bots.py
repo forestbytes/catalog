@@ -1,10 +1,7 @@
 from ollama import Client
-import os
-from dotenv import load_dotenv
 import requests
 from langchain_litellm import ChatLiteLLM
-
-load_dotenv()
+from catalog.config import Settings
 
 MESSAGE_CONTENT = (
     "You are a professional data librarian specializing in dataset discovery. "
@@ -27,9 +24,10 @@ class OllamaBot:
     def __init__(self):
         """Initializes the OllamaBot with API credentials from environment variables.
         """
-        self.OLLAMA_API_KEY = os.environ.get("OLLAMA_API_KEY", "")
-        self.OLLAMA_BASE_URL = os.environ.get("OLLAMA_API_URL", "")
-        self.OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "")
+        settings = Settings()
+        self.OLLAMA_API_KEY = settings.ollama_api_key
+        self.OLLAMA_BASE_URL = settings.ollama_api_url
+        self.OLLAMA_MODEL = settings.ollama_model
 
         if not self.OLLAMA_API_KEY:
             raise ValueError("OLLAMA_API_KEY environment variable is not set.")
@@ -71,9 +69,10 @@ class VerdeBot:
     def __init__(self):
         """Initializes the VerdeBot with API credentials from environment variables.
         """
-        self.VERDE_API_KEY = os.environ.get("VERDE_API_KEY", "")
-        self.VERDE_URL = os.environ.get("VERDE_URL", "")
-        self.VERDE_MODEL = os.environ.get("VERDE_MODEL", "")
+        settings = Settings()
+        self.VERDE_API_KEY = settings.verde_api_key
+        self.VERDE_URL = settings.verde_url
+        self.VERDE_MODEL = settings.verde_model
 
         if not self.VERDE_API_KEY:
             raise ValueError("VERDE_API_KEY environment variable is not set.")

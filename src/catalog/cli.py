@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import click
 from rich.console import Console
 from rich.markdown import Markdown
@@ -7,8 +6,6 @@ from catalog.usfs import USFS
 from catalog.core import ChromaVectorDB
 from catalog.bots import OllamaBot, VerdeBot
 from catalog.search import HybridSearch
-
-load_dotenv()
 
 
 @click.group()
