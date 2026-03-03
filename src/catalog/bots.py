@@ -62,6 +62,26 @@ class OllamaBot:
         resp = self.client.chat(self.OLLAMA_MODEL, messages=messages, stream=False)
         return resp["message"]["content"]
 
+    def expand_query(self, query: str) -> str:
+        """
+        Expands a user's query using the Ollama model.
+
+        :param query: The original user query.
+        :return: The expanded query.
+        """
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant that expands user queries to include relevant keywords and synonyms for better dataset discovery.  Do not provide instruction on how to use, just the epanded query",
+            },
+            {
+                "role": "user",
+                "content": f"Expand the following query to include relevant keywords and synonyms:\n\n{query}",
+            },
+        ]
+
+        resp = self.client.chat(self.OLLAMA_MODEL, messages=messages, stream=False)
+        return resp["message"]["content"]
 
 class VerdeBot:
     def __init__(self):

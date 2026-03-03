@@ -170,7 +170,12 @@ def ask_verde(qstn: str, nresults: int = 5) -> None:
     default=None,
     help="Send results to an LLM bot for a synthesized answer.",
 )
-def hybrid_search(qstn: str, nresults: int = 5, bot: str | None = None) -> None:
+@click.option(
+    "--expq",
+    is_flag=True,
+    help="Whether to expand the query with an LLM before searching.",
+)
+def hybrid_search(qstn: str, nresults: int = 5, bot: str | None = None, expq: bool = False) -> None:
     """
     Query using hybrid search (BM25 keyword + vector semantic).
     Optionally pass results to an LLM with --bot ollama or --bot verde.
@@ -179,6 +184,11 @@ def hybrid_search(qstn: str, nresults: int = 5, bot: str | None = None) -> None:
     console = Console()
     db = ChromaVectorDB()
     hs = HybridSearch(vector_db=db)
+    if expq:
+        expanded_qstn = OllamaBot().expand_query(query=qstn)
+        console.print(f"[blue]Expanded query:[/blue] {expanded_qstn}")
+        qstn = expanded_qstn
+
     resp = hs.query(qstn=qstn, nresults=nresults)
 
     if not resp:

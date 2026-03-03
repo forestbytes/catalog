@@ -2,7 +2,7 @@
 
 import pytest
 from unittest.mock import patch, MagicMock
-from catalog.bots import VerdeBot
+from catalog.bots import VerdeBot, OllamaBot
 
 
 class TestVerdeBot:
@@ -46,3 +46,19 @@ class TestVerdeBot:
 
                 assert result == "Here are some datasets."
                 mock_invoke.assert_called_once()
+
+class TestOllamaBot:
+    """Tests for OllamaBot class."""
+
+    def test_chat_returns_response(self):
+        """Test that chat sends correct messages and returns content."""
+        bot = OllamaBot()
+        result = bot.chat(question="fire data", context="some context")
+        assert isinstance(result, str)
+
+    def test_expand_query_returns_response(self):
+        """Test that expand_query sends correct messages and returns content."""
+        question = "Find datasets about wildfires in California."
+        bot = OllamaBot()
+        result = bot.expand_query(query=question)
+        assert isinstance(result, str)
