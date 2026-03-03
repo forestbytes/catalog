@@ -1,4 +1,4 @@
-.PHONY: gh-deploy build-chromadb test-app
+.PHONY: gh-deploy build-chromadb test-app test-qstn
 
 gh-deploy:
 	uv run mkdocs gh-deploy
