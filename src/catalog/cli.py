@@ -4,7 +4,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 from catalog.usfs import USFS
 from catalog.core import ChromaVectorDB
-from catalog.bots import OllamaBot, VerdeBot
+from catalog.bots import OllamaBot, VerdeBot, AgentBot
 from catalog.search import HybridSearch
 
 
@@ -223,6 +223,30 @@ def hybrid_search(qstn: str, nresults: int = 5, bot: str | None = None, expq: bo
                     padding=(1, 2),
                 )
             )
+
+
+@cli.command()
+@click.option("--qstn", "-q", required=True)
+def agent_search(qstn: str) -> None:
+    """
+    Run an agentic search loop — the LLM drives tool calls until it can answer.
+    """
+    console = Console()
+
+    bot = AgentBot()
+    response = bot.run(question=qstn)
+
+    if response:
+        console.print(
+            Panel(
+                Markdown(response),
+                title="[bold green]Agent Response[/bold green]",
+                border_style="green",
+                padding=(1, 2),
+            )
+        )
+    else:
+        console.print("[yellow]No response from agent.[/yellow]")
 
 
 def main() -> None:

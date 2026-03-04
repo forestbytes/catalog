@@ -1,6 +1,7 @@
 from ollama import Client
 from langchain_litellm import ChatLiteLLM
 from catalog.config import Settings
+from catalog.tools import TOOLS, execute_tool
 
 MESSAGE_CONTENT = (
     "You are a professional data librarian specializing in dataset discovery. "
@@ -82,6 +83,65 @@ class OllamaBot:
 
         resp = self.client.chat(self.OLLAMA_MODEL, messages=messages, stream=False)
         return resp["message"]["content"]
+
+AGENT_SYSTEM_PROMPT = (
+    "You are an intelligent data librarian for the USFS Geodata Clearinghouse. "
+    "You have access to search tools to find relevant geospatial datasets.\n\n"
+    "When answering a question:\n"
+    "- Use the available search tools to find relevant datasets\n"
+    "- If initial results are insufficient, try different queries or tools\n"
+    "- Once you have good results, synthesize a clear answer citing dataset titles and IDs\n"
+    "- Stop searching when you have enough relevant results\n"
+    "- If no relevant datasets exist, say so clearly"
+)
+
+
+class AgentBot:
+    MAX_ITERATIONS = 5
+
+    def __init__(self):
+        from catalog.core import ChromaVectorDB
+        from catalog.search import HybridSearch
+
+        settings = Settings()
+        self.client = Client(
+            host=settings.ollama_api_url,
+            headers={"Authorization": "Bearer " + settings.ollama_api_key},
+        )
+        self.model = settings.ollama_model
+        self.db = ChromaVectorDB()
+        self.hs = HybridSearch(vector_db=self.db)
+
+    def run(self, question: str) -> str:
+        """Run the agentic reasoning loop. Returns the final answer string."""
+        messages = [
+            {"role": "system", "content": AGENT_SYSTEM_PROMPT},
+            {"role": "user", "content": question},
+        ]
+
+        last_content = ""
+        for _ in range(self.MAX_ITERATIONS):
+            response = self.client.chat(
+                model=self.model,
+                messages=messages,
+                tools=TOOLS,
+            )
+            msg = response["message"]
+            messages.append(msg)
+
+            tool_calls = msg.get("tool_calls")
+            if not tool_calls:
+                return msg.get("content", "")
+
+            last_content = msg.get("content", "")
+            for tc in tool_calls:
+                fn_name = tc["function"]["name"]
+                fn_args = tc["function"]["arguments"]
+                result = execute_tool(fn_name, fn_args, self.db, self.hs)
+                messages.append({"role": "tool", "content": result})
+
+        return last_content or "Maximum search iterations reached. Please refine your query."
+
 
 class VerdeBot:
     def __init__(self):
