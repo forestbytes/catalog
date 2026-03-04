@@ -14,7 +14,7 @@ This document outlines recommendations for improving the Catalog project based o
 | Medium   | Cross-encoder re-ranking after retrieval         | Pending |
 | Medium   | Add progress indicators                          | Pending |
 | Medium   | Implement Ollama streaming                       | Pending |
-| High     | Agentic tool use (LLM-driven search loop)        | Pending |
+| High     | Agentic tool use (LLM-driven search loop)        | Done |
 | Low      | Refactor to subpackages                          | Pending |
 | Low      | Add pre-commit hooks                             | Done    |
 | Low      | Centralize configuration                         | Done    |
