@@ -8,7 +8,7 @@ This document outlines recommendations for improving the Catalog project based o
 
 | Priority | Action                                          | Status  |
 | -------- | ----------------------------------------------- | ------- |
-| High     | Query rewriting / expansion before vector search | Pending |
+| High     | Query rewriting / expansion before vector search | Done |
 | High     | HyDE (Hypothetical Document Embedding)           | Pending |
 | Medium   | Conversational memory for follow-up questions    | Pending |
 | Medium   | Cross-encoder re-ranking after retrieval         | Pending |
